@@ -3,6 +3,8 @@ export interface Student {
   name: string;
   dateOfBirth: string;
   schoolName: string;
+  status: 'pending' | 'selected' | 'eliminated';
+  rank?: number;
   evaluations: {
     football?: SportEvaluation;
     athletics?: SportEvaluation;

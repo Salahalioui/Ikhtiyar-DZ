@@ -10,39 +10,29 @@ interface StudentFormProps {
 
 export function StudentForm({ student, onSave, onCancel }: StudentFormProps) {
   const [formData, setFormData] = useState({
+    id: student?.id || crypto.randomUUID(),
     name: student?.name || '',
     dateOfBirth: student?.dateOfBirth || '',
     schoolName: student?.schoolName || '',
+    status: student?.status || 'pending' as const,
+    evaluations: student?.evaluations || {}
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      id: student?.id || crypto.randomUUID(),
-      ...formData,
-      evaluations: student?.evaluations || {},
-    });
+    onSave(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          {student ? 'Edit Student' : 'Add New Student'}
-        </h2>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <X size={20} />
-        </button>
-      </div>
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        {student ? 'Edit Student' : 'Add Student'}
+      </h2>
 
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Full Name
+            Name
           </label>
           <input
             type="text"

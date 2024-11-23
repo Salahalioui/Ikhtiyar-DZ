@@ -14,7 +14,11 @@ export const storage = {
 
   addStudent: (student: Student) => {
     const students = storage.getStudents();
-    students.push(student);
+    const newStudent = {
+      ...student,
+      status: student.status || 'pending'
+    };
+    students.push(newStudent);
     storage.saveStudents(students);
   },
 
