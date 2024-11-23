@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Download, FileText, Filter, ChevronDown } from 'lucide-react';
+import { Download, FileText, Filter, ChevronDown, Printer } from 'lucide-react';
 import { Student } from '../types';
 import { exportToCSV } from '../lib/export';
 import { exportToPDF } from '../lib/export';
@@ -21,6 +21,7 @@ import {
 import { DataManagement } from './DataManagement';
 import { ageGroups } from '../lib/ageGroups';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PrintableReport } from './PrintableReport';
 
 interface ReportsProps {
   students: Student[];
@@ -209,6 +210,32 @@ export function Reports({ students }: ReportsProps) {
           >
             <FileText className="h-4 w-4" />
             PDF
+          </button>
+          <button
+            onClick={() => {
+              const printWindow = window.open('', '_blank');
+              if (printWindow) {
+                printWindow.document.write(`
+                  <html>
+                    <head>
+                      <title>Talent Scout Report</title>
+                      <link href="${window.location.origin}/src/index.css" rel="stylesheet">
+                    </head>
+                    <body>
+                      <div id="report">
+                        ${document.getElementById('printable-report')?.innerHTML}
+                      </div>
+                    </body>
+                  </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            <Printer className="h-4 w-4" />
+            Print Report
           </button>
         </div>
       </div>
@@ -499,6 +526,15 @@ export function Reports({ students }: ReportsProps) {
           window.location.reload();
         }} 
       />
+
+      {/* Add the printable report (hidden by default) */}
+      <div id="printable-report" className="hidden">
+        <PrintableReport
+          students={filteredStudents}
+          type={filters.school === 'all' ? 'summary' : 'school'}
+          schoolName={filters.school === 'all' ? undefined : filters.school}
+        />
+      </div>
     </div>
   );
 } 

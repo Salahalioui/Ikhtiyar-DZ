@@ -4,6 +4,7 @@ export const validation = {
     if (!student.name?.trim()) errors.push('Name is required');
     if (!student.dateOfBirth) errors.push('Date of birth is required');
     if (!student.schoolName?.trim()) errors.push('School name is required');
+    if (!student.selectedSport) errors.push('Sport selection is required');
     
     if (student.dateOfBirth) {
       const age = new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear();

@@ -5,6 +5,7 @@ export interface Student {
   schoolName: string;
   status: 'pending' | 'selected' | 'eliminated';
   rank?: number;
+  selectedSport: 'football' | 'athletics';
   evaluations: {
     football?: SportEvaluation;
     athletics?: SportEvaluation;

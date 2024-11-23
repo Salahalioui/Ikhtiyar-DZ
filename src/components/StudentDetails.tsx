@@ -151,9 +151,11 @@ export function StudentDetails({ student, onSave, onBack }: StudentDetailsProps)
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {renderEvaluationCard('football', FOOTBALL_METRICS, <Award className="h-6 w-6 text-blue-600" />)}
-        {renderEvaluationCard('athletics', ATHLETICS_METRICS, <Gauge className="h-6 w-6 text-blue-600" />)}
+      <div className="grid gap-6">
+        {student.selectedSport === 'football' && 
+          renderEvaluationCard('football', FOOTBALL_METRICS, <Award className="h-6 w-6 text-blue-600" />)}
+        {student.selectedSport === 'athletics' && 
+          renderEvaluationCard('athletics', ATHLETICS_METRICS, <Gauge className="h-6 w-6 text-blue-600" />)}
       </div>
     </div>
   );

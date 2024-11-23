@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Student } from '../types';
-import { Save, X, Calendar, User, School, AlertCircle } from 'lucide-react';
+import { Save, X, Calendar, User, School, AlertCircle, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { validation } from '../lib/validation';
 import { useNotification } from '../context/NotificationContext';
@@ -19,6 +19,7 @@ export function StudentForm({ student, onSave, onCancel }: StudentFormProps) {
     dateOfBirth: student?.dateOfBirth || '',
     schoolName: student?.schoolName || '',
     status: student?.status || 'pending' as const,
+    selectedSport: student?.selectedSport || 'football' as const,
     evaluations: student?.evaluations || {},
     evaluationHistory: student?.evaluationHistory || { football: [], athletics: [] }
   });
@@ -142,6 +143,27 @@ export function StudentForm({ student, onSave, onCancel }: StudentFormProps) {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                 placeholder="Enter school name"
               />
+            </div>
+
+            <div>
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                <Trophy className="h-4 w-4 mr-1" />
+                Selected Sport
+              </label>
+              <select
+                value={formData.selectedSport}
+                onChange={(e) => setFormData({ 
+                  ...formData, 
+                  selectedSport: e.target.value as 'football' | 'athletics',
+                  evaluations: {
+                    [e.target.value]: formData.evaluations[e.target.value as 'football' | 'athletics']
+                  }
+                })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="football">Football</option>
+                <option value="athletics">Athletics</option>
+              </select>
             </div>
           </div>
 

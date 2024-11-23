@@ -1,9 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Student } from '../types';
-import { UserPlus, Trash2, Edit, ChevronRight, Users, Check, X, Search, Filter } from 'lucide-react';
+import { UserPlus, Trash2, Edit, ChevronRight, Users, Check, X, Search, Filter, UserCheck, UserX } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import { ConfirmDialog } from './ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { batchOperations } from '../lib/batchOperations';
+import { paginateData, PaginationOptions } from '../lib/pagination';
+import { useLazyLoad } from '../hooks/useLazyLoad';
 
 interface StudentListProps {
   students: Student[];
@@ -24,6 +27,44 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [paginationOptions, setPaginationOptions] = useState<PaginationOptions>({
+    page: 1,
+    pageSize: 20,
+    sortField: 'name',
+    sortOrder: 'asc'
+  });
+
+  const {
+    displayedItems: paginatedStudents,
+    hasMore,
+    isLoading,
+    loadMore
+  } = useLazyLoad({
+    items: filteredAndSortedStudents,
+    initialBatchSize: paginationOptions.pageSize
+  });
+
+  // Add intersection observer for infinite scroll
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
 
   const filteredAndSortedStudents = useMemo(() => {
     return students
@@ -52,6 +93,59 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
     } else {
       setSortField(field);
       setSortOrder('asc');
+    }
+  };
+
+  const handleSelectStudent = (studentId: string) => {
+    const newSelected = new Set(selectedStudents);
+    if (newSelected.has(studentId)) {
+      newSelected.delete(studentId);
+    } else {
+      newSelected.add(studentId);
+    }
+    setSelectedStudents(newSelected);
+    setShowBulkActions(newSelected.size > 0);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedStudents.size === filteredAndSortedStudents.length) {
+      setSelectedStudents(new Set());
+      setShowBulkActions(false);
+    } else {
+      setSelectedStudents(new Set(filteredAndSortedStudents.map(s => s.id)));
+      setShowBulkActions(true);
+    }
+  };
+
+  const handleBulkStatusUpdate = (newStatus: 'selected' | 'eliminated' | 'pending') => {
+    if (selectedStudents.size === 0) return;
+
+    const studentIds = Array.from(selectedStudents);
+    
+    // Get confirmation message based on status change
+    const confirmMessage = `Are you sure you want to mark ${studentIds.length} students as ${newStatus}? This will override any previous status.`;
+    
+    if (window.confirm(confirmMessage)) {
+      batchOperations.updateStatus(studentIds, newStatus);
+      showNotification(`Updated status for ${studentIds.length} students to ${newStatus}`, 'success');
+      setSelectedStudents(new Set());
+      setShowBulkActions(false);
+      // Refresh the student list
+      window.location.reload();
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedStudents.size === 0) return;
+
+    if (window.confirm(`Are you sure you want to delete ${selectedStudents.size} students?`)) {
+      const studentIds = Array.from(selectedStudents);
+      batchOperations.deleteMultiple(studentIds);
+      showNotification(`Deleted ${studentIds.length} students`, 'success');
+      setSelectedStudents(new Set());
+      setShowBulkActions(false);
+      // Refresh the student list
+      window.location.reload();
     }
   };
 
@@ -151,10 +245,71 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
         </AnimatePresence>
       </div>
 
+      {/* Bulk Actions Bar */}
+      <AnimatePresence>
+        {showBulkActions && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-blue-50 border border-blue-100 rounded-lg p-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-blue-700">
+                  {selectedStudents.size} students selected
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleBulkStatusUpdate('selected')}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  <UserCheck className="h-4 w-4" />
+                  Mark Selected
+                </button>
+                <button
+                  onClick={() => handleBulkStatusUpdate('eliminated')}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  <UserX className="h-4 w-4" />
+                  Mark Eliminated
+                </button>
+                <button
+                  onClick={() => handleBulkStatusUpdate('pending')}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                >
+                  <Users className="h-4 w-4" />
+                  Mark Pending
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Student Cards */}
       <div className="grid gap-4">
+        {/* Select All Checkbox */}
+        <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
+          <input
+            type="checkbox"
+            checked={selectedStudents.size === filteredAndSortedStudents.length}
+            onChange={handleSelectAll}
+            className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+          />
+          <span className="text-sm text-gray-600">Select All</span>
+        </div>
+
         <AnimatePresence mode="popLayout">
-          {filteredAndSortedStudents.map((student) => (
+          {paginatedStudents.map((student) => (
             <motion.div
               key={student.id}
               layout
@@ -162,29 +317,39 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               whileHover={{ scale: 1.02 }}
-              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                selectedStudents.has(student.id) ? 'ring-2 ring-blue-500' : ''
+              }`}
             >
               <div className="p-6">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{student.name}</h3>
-                    <p className="text-gray-600 mt-1">{student.schoolName}</p>
-                    <div className="mt-2 flex items-center gap-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        student.status === 'selected' ? 'bg-green-100 text-green-800' :
-                        student.status === 'eliminated' ? 'bg-red-100 text-red-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {student.status === 'selected' && <Check className="w-3 h-3 mr-1" />}
-                        {student.status === 'eliminated' && <X className="w-3 h-3 mr-1" />}
-                        {student.status?.charAt(0).toUpperCase() + student.status?.slice(1)}
-                      </span>
-                      {student.evaluations.football && (
-                        <span className="text-xs text-gray-500">Football Evaluation ✓</span>
-                      )}
-                      {student.evaluations.athletics && (
-                        <span className="text-xs text-gray-500">Athletics Evaluation ✓</span>
-                      )}
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedStudents.has(student.id)}
+                      onChange={() => handleSelectStudent(student.id)}
+                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900">{student.name}</h3>
+                      <p className="text-gray-600 mt-1">{student.schoolName}</p>
+                      <div className="mt-2 flex items-center gap-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          student.status === 'selected' ? 'bg-green-100 text-green-800' :
+                          student.status === 'eliminated' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {student.status === 'selected' && <Check className="w-3 h-3 mr-1" />}
+                          {student.status === 'eliminated' && <X className="w-3 h-3 mr-1" />}
+                          {student.status?.charAt(0).toUpperCase() + student.status?.slice(1)}
+                        </span>
+                        {student.evaluations.football && (
+                          <span className="text-xs text-gray-500">Football Evaluation ✓</span>
+                        )}
+                        {student.evaluations.athletics && (
+                          <span className="text-xs text-gray-500">Athletics Evaluation ✓</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
@@ -244,6 +409,11 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
             </div>
           </motion.div>
         )}
+
+        {/* Loading indicator and observer target */}
+        <div ref={observerTarget} className="h-10 flex items-center justify-center">
+          {isLoading && <LoadingSpinner size="small" />}
+        </div>
       </div>
       
       <ConfirmDialog
