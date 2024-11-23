@@ -17,6 +17,7 @@ import {
   Cell
 } from 'recharts';
 import { DataManagement } from './DataManagement';
+import { ageGroups } from '../lib/ageGroups';
 
 interface ReportsProps {
   students: Student[];
@@ -40,6 +41,9 @@ export function Reports({ students }: ReportsProps) {
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'pending' | 'selected' | 'eliminated'>('all');
   const [minAge, setMinAge] = useState<string>('');
   const [maxAge, setMaxAge] = useState<string>('');
+  const [selectedAgeGroup, setSelectedAgeGroup] = useState<string>('all');
+  const [sortField, setSortField] = useState<string>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const schools = useMemo(() => {
     const uniqueSchools = new Set(students.map(s => s.schoolName));
@@ -48,6 +52,8 @@ export function Reports({ students }: ReportsProps) {
 
   const filteredStudents = useMemo(() => {
     return students.filter(student => {
+      const ageGroup = ageGroups.calculateAgeGroup(student.dateOfBirth);
+      const matchesAgeGroup = selectedAgeGroup === 'all' || ageGroup === selectedAgeGroup;
       const matchesSchool = selectedSchool === 'all' || student.schoolName === selectedSchool;
       const matchesSport = selectedSport === 'all' || 
         (selectedSport === 'football' && student.evaluations.football) ||
@@ -58,9 +64,15 @@ export function Reports({ students }: ReportsProps) {
       const matchesAge = (!minAge || age >= parseInt(minAge)) && 
                         (!maxAge || age <= parseInt(maxAge));
 
-      return matchesSchool && matchesSport && matchesStatus && matchesAge;
+      return matchesSchool && matchesSport && matchesStatus && matchesAge && matchesAgeGroup;
+    }).sort((a, b) => {
+      const aValue = a[sortField as keyof Student];
+      const bValue = b[sortField as keyof Student];
+      return sortOrder === 'asc' ? 
+        aValue > bValue ? 1 : -1 :
+        aValue < bValue ? 1 : -1;
     });
-  }, [students, selectedSchool, selectedSport, selectedStatus, minAge, maxAge]);
+  }, [students, selectedSchool, selectedSport, selectedStatus, minAge, maxAge, selectedAgeGroup, sortField, sortOrder]);
 
   const statistics = useMemo(() => {
     const stats = {
@@ -193,6 +205,36 @@ export function Reports({ students }: ReportsProps) {
             <option value="pending">Pending</option>
             <option value="selected">Selected</option>
             <option value="eliminated">Eliminated</option>
+          </select>
+          <select
+            value={selectedAgeGroup}
+            onChange={(e) => setSelectedAgeGroup(e.target.value as 'all' | 'U10' | 'U12' | 'U14' | 'U16' | 'U18')}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="all">All Age Groups</option>
+            <option value="U10">U10</option>
+            <option value="U12">U12</option>
+            <option value="U14">U14</option>
+            <option value="U16">U16</option>
+            <option value="U18">U18</option>
+          </select>
+          <select
+            value={sortField}
+            onChange={(e) => setSortField(e.target.value as 'name' | 'schoolName' | 'status' | 'dateOfBirth')}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="name">Name</option>
+            <option value="schoolName">School</option>
+            <option value="status">Status</option>
+            <option value="dateOfBirth">Date of Birth</option>
+          </select>
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
           <button
             onClick={() => exportToCSV(filteredStudents, `talent-scout-report.csv`)}

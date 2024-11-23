@@ -9,6 +9,10 @@ export interface Student {
     football?: SportEvaluation;
     athletics?: SportEvaluation;
   };
+  evaluationHistory: {
+    football: EvaluationHistory[];
+    athletics: EvaluationHistory[];
+  };
 }
 
 export interface SportEvaluation {
@@ -25,4 +29,9 @@ export interface EvaluationMetric {
   description: string;
   min: number;
   max: number;
+}
+
+export interface EvaluationHistory {
+  date: string;
+  evaluation: SportEvaluation;
 }
