@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Student } from './types';
 import { storage } from './lib/storage';
 import { StudentList } from './components/StudentList';
