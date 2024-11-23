@@ -23,6 +23,14 @@ export interface SportEvaluation {
   comments: string;
 }
 
+export interface SportConfig {
+  id: string;
+  name: string;
+  icon: string; // Lucide icon name
+  metrics: EvaluationMetric[];
+  isCustom?: boolean;
+}
+
 export interface EvaluationMetric {
   id: string;
   name: string;
