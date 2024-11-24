@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Ikhtiyar DZ</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f3f4f6;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #1f2937;
+      margin-bottom: 16px;
+    }
+
+    p {
+      color: #4b5563;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+    }
+
+    .retry-button {
+      background-color: #2563eb;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    .retry-button:hover {
+      background-color: #1d4ed8;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/icons/icon-192x192.png" alt="Ikhtiyar DZ Logo" class="logo">
+    <h1>أنت غير متصل بالإنترنت</h1>
+    <p>
+      لا يمكن الوصول إلى التطبيق حاليًا. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.
+    </p>
+    <p>
+      You are currently offline. Please check your internet connection and try again.
+    </p>
+    <button class="retry-button" onclick="window.location.reload()">
+      إعادة المحاولة / Retry
+    </button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    // Check connection status periodically
+    function checkConnection() {
+      const status = document.getElementById('status');
+      if (navigator.onLine) {
+        status.textContent = 'متصل بالإنترنت / Online';
+        status.style.color = '#059669';
+      } else {
+        status.textContent = 'غير متصل / Offline';
+        status.style.color = '#dc2626';
+      }
+    }
+
+    window.addEventListener('online', checkConnection);
+    window.addEventListener('offline', checkConnection);
+    checkConnection();
+  </script>
+</body>
+</html> 
