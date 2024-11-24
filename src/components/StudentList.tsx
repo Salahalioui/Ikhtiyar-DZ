@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { Student, SportEvaluation } from '../types';
-import { UserPlus, Trash2, Edit, ChevronRight, Users, Check, X, Search, Filter, UserCheck, UserX, Upload } from 'lucide-react';
+import { UserPlus, Trash2, Edit, ChevronRight, Users, Check, X, Search, Filter, UserCheck, UserX, Upload, Printer } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import { ConfirmDialog } from './ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { batchOperations } from '../lib/batchOperations';
 import { BatchEvaluation } from './BatchEvaluation';
 import { ImportStudents } from './ImportStudents';
+import { PrintLicenses } from './PrintLicenses';
 
 interface StudentListProps {
   students: Student[];
@@ -31,6 +32,7 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showBatchEvaluation, setShowBatchEvaluation] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showPrintLicenses, setShowPrintLicenses] = useState(false);
 
   const filteredAndSortedStudents = useMemo(() => {
     return students
@@ -291,6 +293,13 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
                   <Trash2 className="h-4 w-4" />
                   Delete
                 </button>
+                <button
+                  onClick={() => setShowPrintLicenses(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                >
+                  <Printer className="h-4 w-4" />
+                  Print Licenses
+                </button>
               </div>
             </div>
           </motion.div>
@@ -440,6 +449,13 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
         <ImportStudents
           onImport={handleImportStudents}
           onClose={() => setShowImport(false)}
+        />
+      )}
+
+      {showPrintLicenses && selectedStudents.size > 0 && (
+        <PrintLicenses
+          students={students.filter(s => selectedStudents.has(s.id))}
+          onClose={() => setShowPrintLicenses(false)}
         />
       )}
     </div>
