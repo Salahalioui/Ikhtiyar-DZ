@@ -2,9 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Print styles */
 @media print {
   @page {
-    size: A4;
+    size: A4 landscape;
     margin: 10mm;
   }
 
@@ -12,13 +13,51 @@
     visibility: hidden;
   }
 
-  .print-licenses, .print-licenses * {
+  #licenses-container,
+  #licenses-container * {
     visibility: visible;
   }
 
-  .print-licenses {
+  #licenses-container {
     position: absolute;
     left: 0;
     top: 0;
+    width: 100%;
   }
+
+  .print-hidden {
+    display: none !important;
+  }
+
+  .licenses-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10mm !important;
+    padding: 5mm !important;
+  }
+}
+
+/* Regular screen styles */
+.licenses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(85.6mm, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.license-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.license-card {
+  width: 85.6mm;
+  height: 54mm;
+  position: relative;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }

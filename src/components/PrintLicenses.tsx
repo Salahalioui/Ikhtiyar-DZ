@@ -13,16 +13,25 @@ export function PrintLicenses({ students, onClose }: PrintLicensesProps) {
     window.print();
   };
 
+  // Calculate pages for preview
+  const licensesPerPage = 4; // 2x2 grid
+  const pages = Math.ceil(students.length / licensesPerPage);
+
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50 print:p-0 print:bg-white print:items-start">
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-6 print:shadow-none print:max-h-none"
+        className="bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto p-6"
       >
         {/* Header - Only show on screen */}
-        <div className="flex justify-between items-center mb-6 print:hidden">
-          <h2 className="text-xl font-semibold text-gray-900">Student Licenses</h2>
+        <div className="flex justify-between items-center mb-6 print-hidden">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Student Licenses</h2>
+            <p className="text-sm text-gray-500">
+              {students.length} licenses - {pages} pages
+            </p>
+          </div>
           <div className="flex gap-4">
             <button
               onClick={handlePrint}
@@ -40,10 +49,12 @@ export function PrintLicenses({ students, onClose }: PrintLicensesProps) {
           </div>
         </div>
 
-        {/* Licenses Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-8 print:p-4">
+        {/* Single Layout for both Preview and Print */}
+        <div id="licenses-container" className="licenses-grid">
           {students.map(student => (
-            <StudentLicense key={student.id} student={student} />
+            <div key={student.id} className="license-wrapper">
+              <StudentLicense student={student} />
+            </div>
           ))}
         </div>
       </motion.div>

@@ -14,6 +14,8 @@ export interface Student {
     football: EvaluationHistory[];
     athletics: EvaluationHistory[];
   };
+  photo?: string;
+  signature?: string;
 }
 
 export interface SportEvaluation {
