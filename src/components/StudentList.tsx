@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Student, SportEvaluation } from '../types';
-import { UserPlus, Trash2, Edit, ChevronRight, Users, Check, X, Search, Filter, UserCheck, UserX } from 'lucide-react';
+import { UserPlus, Trash2, Edit, ChevronRight, Users, Check, X, Search, Filter, UserCheck, UserX, Upload } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import { ConfirmDialog } from './ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { batchOperations } from '../lib/batchOperations';
 import { BatchEvaluation } from './BatchEvaluation';
+import { ImportStudents } from './ImportStudents';
 
 interface StudentListProps {
   students: Student[];
@@ -29,6 +30,7 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showBatchEvaluation, setShowBatchEvaluation] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   const filteredAndSortedStudents = useMemo(() => {
     return students
@@ -120,6 +122,15 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
     window.location.reload();
   };
 
+  const handleImportStudents = (newStudents: Student[]) => {
+    // Add all new students
+    newStudents.forEach(student => {
+      storage.addStudent(student);
+    });
+    // Refresh the list
+    window.location.reload();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -139,6 +150,15 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
           >
             <Users size={20} />
             Batch Evaluate
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowImport(true)}
+            className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md"
+          >
+            <Upload size={20} />
+            Import Students
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -413,6 +433,13 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
           students={students}
           onSave={handleBatchEvaluationSave}
           onClose={() => setShowBatchEvaluation(false)}
+        />
+      )}
+
+      {showImport && (
+        <ImportStudents
+          onImport={handleImportStudents}
+          onClose={() => setShowImport(false)}
         />
       )}
     </div>
