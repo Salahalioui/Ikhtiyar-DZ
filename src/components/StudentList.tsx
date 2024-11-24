@@ -8,6 +8,7 @@ import { batchOperations } from '../lib/batchOperations';
 import { BatchEvaluation } from './BatchEvaluation';
 import { ImportStudents } from './ImportStudents';
 import { PrintLicenses } from './PrintLicenses';
+import { storage } from '../lib/storage';
 
 interface StudentListProps {
   students: Student[];
@@ -125,12 +126,17 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
   };
 
   const handleImportStudents = (newStudents: Student[]) => {
-    // Add all new students
-    newStudents.forEach(student => {
-      storage.addStudent(student);
-    });
-    // Refresh the list
-    window.location.reload();
+    try {
+      // Add all new students
+      newStudents.forEach(student => {
+        storage.addStudent(student);
+      });
+      showNotification(`Successfully imported ${newStudents.length} students`, 'success');
+      // Refresh the list
+      window.location.reload();
+    } catch (error) {
+      showNotification('Error importing students', 'error');
+    }
   };
 
   return (

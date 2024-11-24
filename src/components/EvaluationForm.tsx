@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EvaluationMetric, SportEvaluation } from '../types';
-import { Save, X } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 interface EvaluationFormProps {
   metrics: EvaluationMetric[];

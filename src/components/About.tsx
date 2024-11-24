@@ -1,6 +1,6 @@
 import { 
-  Users, ClipboardList, Medal, FileText, Wifi, 
-  Share2, Settings, ListChecks, Database, BarChart 
+  Users, Medal, FileText, Wifi, 
+  Share2, Settings, ListChecks, BarChart 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
