@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Student } from '../types';
 import { Save, X, Calendar, User, School, AlertCircle, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { validation } from '../lib/validation';
 import { useNotification } from '../context/NotificationContext';
+import { getSchools, addCustomSchool } from '../lib/schoolsList';
 
 interface StudentFormProps {
   student?: Student;
@@ -24,6 +25,9 @@ export function StudentForm({ student, onSave, onCancel }: StudentFormProps) {
     evaluationHistory: student?.evaluationHistory || { football: [], athletics: [] }
   });
   const [errors, setErrors] = useState<string[]>([]);
+  const [isAddingSchool, setIsAddingSchool] = useState(false);
+  const [newSchool, setNewSchool] = useState('');
+  const schools = useMemo(() => getSchools(), []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +55,15 @@ export function StudentForm({ student, onSave, onCancel }: StudentFormProps) {
       age--;
     }
     return age;
+  };
+
+  const handleAddSchool = () => {
+    if (newSchool.trim()) {
+      addCustomSchool(newSchool.trim());
+      setFormData({ ...formData, schoolName: newSchool.trim() });
+      setNewSchool('');
+      setIsAddingSchool(false);
+    }
   };
 
   return (
@@ -136,13 +149,51 @@ export function StudentForm({ student, onSave, onCancel }: StudentFormProps) {
                 <School className="h-4 w-4 mr-1" />
                 School Name
               </label>
-              <input
-                type="text"
-                value={formData.schoolName}
-                onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                placeholder="Enter school name"
-              />
+              {isAddingSchool ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSchool}
+                    onChange={(e) => setNewSchool(e.target.value)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                    placeholder="Enter new school name"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSchool}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingSchool(false)}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <select
+                    value={formData.schoolName}
+                    onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                  >
+                    <option value="">Select a school</option>
+                    {schools.map(school => (
+                      <option key={school} value={school}>{school}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingSchool(true)}
+                    className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                  >
+                    Add New School
+                  </button>
+                </div>
+              )}
             </div>
 
             <div>

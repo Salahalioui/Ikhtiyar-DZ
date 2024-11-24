@@ -3,6 +3,7 @@ import { Student } from '../types';
 import { Upload, Download, AlertCircle } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import Papa from 'papaparse';
+import { defaultSchools, addCustomSchool } from '../lib/schoolsList';
 
 interface ImportStudentsProps {
   onImport: (students: Student[]) => void;
@@ -15,9 +16,9 @@ export function ImportStudents({ onImport, onClose }: ImportStudentsProps) {
 
   const downloadTemplate = () => {
     const template = [
-      ['Name', 'Date of Birth (YYYY-MM-DD)', 'School Name', 'Sport (football/athletics)'],
-      ['John Doe', '2010-01-15', 'Example School', 'football'],
-      ['Jane Smith', '2011-03-22', 'Example School', 'athletics']
+      ['Name', 'Date of Birth (YYYY-MM-DD)', 'School Name (or enter new)', 'Sport (football/athletics)'],
+      ['محمد أمين', '2010-01-15', 'ابتدائية الآمال', 'football'],
+      ['عبد القادر', '2011-03-22', 'ابتدائية النجاح', 'athletics']
     ];
 
     const csv = Papa.unparse(template);
@@ -36,16 +37,22 @@ export function ImportStudents({ onImport, onClose }: ImportStudentsProps) {
       header: true,
       complete: (results) => {
         try {
-          const students: Student[] = results.data.map((row: any) => ({
-            id: crypto.randomUUID(),
-            name: row['Name']?.trim(),
-            dateOfBirth: row['Date of Birth (YYYY-MM-DD)']?.trim(),
-            schoolName: row['School Name']?.trim(),
-            selectedSport: row['Sport (football/athletics)']?.trim().toLowerCase(),
-            status: 'pending',
-            evaluations: {},
-            evaluationHistory: { football: [], athletics: [] }
-          }));
+          const students: Student[] = results.data.map((row: any) => {
+            if (row['School Name'] && !defaultSchools.includes(row['School Name'])) {
+              addCustomSchool(row['School Name']);
+            }
+
+            return {
+              id: crypto.randomUUID(),
+              name: row['Name']?.trim(),
+              dateOfBirth: row['Date of Birth (YYYY-MM-DD)']?.trim(),
+              schoolName: row['School Name']?.trim(),
+              selectedSport: row['Sport (football/athletics)']?.trim().toLowerCase(),
+              status: 'pending',
+              evaluations: {},
+              evaluationHistory: { football: [], athletics: [] }
+            };
+          });
 
           // Validate data
           const errors = students.reduce((acc: string[], student, index) => {
