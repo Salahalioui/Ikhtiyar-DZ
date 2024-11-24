@@ -26,7 +26,7 @@ export function DataManagement({ onDataImported }: DataManagementProps) {
       if (result.success) {
         onDataImported();
       }
-    } catch (error) {
+    } catch {
       setImportMessage({
         type: 'error',
         text: 'Failed to read file'

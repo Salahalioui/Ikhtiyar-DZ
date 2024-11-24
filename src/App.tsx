@@ -8,8 +8,9 @@ import { Reports } from './components/Reports';
 import { Notifications } from './components/Notifications';
 import { NotificationProvider } from './context/NotificationContext';
 import { LoadingSpinner } from './components/LoadingSpinner';
-import { ClipboardList, Settings, Menu, X } from 'lucide-react';
+import { ClipboardList, Settings, Menu, X, Info } from 'lucide-react';
 import { MetricsConfig } from './components/MetricsConfig';
+import { About } from './components/About';
 
 function App() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -20,6 +21,7 @@ function App() {
   const [showReports, setShowReports] = useState(false);
   const [showMetricsConfig, setShowMetricsConfig] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   useEffect(() => {
     setStudents(storage.getStudents());
@@ -92,6 +94,13 @@ function App() {
                 >
                   {showReports ? 'Back to Students' : 'View Reports'}
                 </button>
+                <button
+                  onClick={() => setShowAbout(!showAbout)}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  <Info className="h-5 w-5" />
+                  About
+                </button>
               </div>
 
               {/* Mobile Menu Button */}
@@ -125,6 +134,16 @@ function App() {
                 >
                   {showReports ? 'Back to Students' : 'View Reports'}
                 </button>
+                <button
+                  onClick={() => {
+                    setShowAbout(!showAbout);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md w-full"
+                >
+                  <Info className="h-5 w-5" />
+                  About
+                </button>
               </div>
             )}
           </div>
@@ -132,7 +151,9 @@ function App() {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-xl shadow-sm p-6">
-            {showReports ? (
+            {showAbout ? (
+              <About />
+            ) : showReports ? (
               <Reports students={students} />
             ) : selectedStudent ? (
               <StudentDetails

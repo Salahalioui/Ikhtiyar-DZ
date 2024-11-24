@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Student, SportEvaluation } from '../types';
 import { config } from '../lib/config';
-import { Save, X, Filter, Users } from 'lucide-react';
+import { Save, X, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNotification } from '../context/NotificationContext';
 

@@ -3,8 +3,7 @@ import { EvaluationMetric, SportConfig } from '../types';
 import { config } from '../lib/config';
 import { 
   Plus, Trash2, Save, RotateCcw, 
-  Dumbbell, Timer, 
-  Edit2, Check, X, AlertCircle, ChevronDown 
+  Dumbbell, Timer, X 
 } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';

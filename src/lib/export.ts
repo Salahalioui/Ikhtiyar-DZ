@@ -1,9 +1,24 @@
 import { Student } from '../types';
+import { config } from '../lib/config';
+import { storage } from './storage';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+interface Statistics {
+  totalStudents: number;
+  withFootball: number;
+  withAthletics: number;
+  statusCounts: {
+    selected: number;
+    eliminated: number;
+    pending: number;
+  };
+}
+
 export function exportToCSV(students: Student[], filename: string) {
-  const config = storage.getConfig(); // Get current metric configuration
+  const sports = config.getSports();
+  const footballMetrics = sports.find(s => s.id === 'football')?.metrics || [];
+  const athleticsMetrics = sports.find(s => s.id === 'athletics')?.metrics || [];
   
   // Create dynamic headers based on configured metrics
   const headers = [
@@ -11,9 +26,9 @@ export function exportToCSV(students: Student[], filename: string) {
     'School',
     'Date of Birth',
     'Status',
-    ...config.football.map(m => `Football - ${m.name}`),
+    ...footballMetrics.map(m => `Football - ${m.name}`),
     'Football Comments',
-    ...config.athletics.map(m => `Athletics - ${m.name}`),
+    ...athleticsMetrics.map(m => `Athletics - ${m.name}`),
     'Athletics Comments'
   ];
 
@@ -27,9 +42,9 @@ export function exportToCSV(students: Student[], filename: string) {
       student.schoolName,
       student.dateOfBirth,
       student.status,
-      ...config.football.map(m => football?.scores[m.id] || ''),
+      ...footballMetrics.map(m => football?.scores[m.id] || ''),
       football?.comments || '',
-      ...config.athletics.map(m => athletics?.scores[m.id] || ''),
+      ...athleticsMetrics.map(m => athletics?.scores[m.id] || ''),
       athletics?.comments || ''
     ];
   });
@@ -54,7 +69,7 @@ export function exportToCSV(students: Student[], filename: string) {
   }
 }
 
-export function exportToPDF(students: Student[], statistics: any) {
+export function exportToPDF(students: Student[], statistics: Statistics) {
   const doc = new jsPDF();
   
   // Add title
@@ -84,6 +99,7 @@ export function exportToPDF(students: Student[], statistics: any) {
       : 'N/A'
   ]);
 
+  // Type assertion for jsPDF with autoTable
   (doc as any).autoTable({
     startY: 55,
     head: [['Name', 'School', 'Date of Birth', 'Football Avg', 'Athletics Avg']],

@@ -1,3 +1,5 @@
+import { Student, SportEvaluation } from '../types';
+
 export const validation = {
   validateStudent: (student: Partial<Student>): string[] => {
     const errors: string[] = [];

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Student } from '../types';
 import { rankings } from '../lib/rankings';
-import { Medal, School, Users } from 'lucide-react';
+import { Medal, School } from 'lucide-react';
 
 interface RankingsProps {
   students: Student[];

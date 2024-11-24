@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Download, FileText, Filter, ChevronDown, Printer } from 'lucide-react';
 import { Student } from '../types';
-import { exportToCSV } from '../lib/export';
-import { exportToPDF } from '../lib/export';
+import { exportToCSV, exportToPDF } from '../lib/export';
 import {
   BarChart,
   Bar,
