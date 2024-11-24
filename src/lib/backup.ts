@@ -8,7 +8,6 @@ export const backupService = {
       version: '1.0'
     };
     
-    // Create downloadable JSON file
     const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -17,6 +16,7 @@ export const backupService = {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   },
 
   importData: async (file: File) => {
@@ -24,12 +24,10 @@ export const backupService = {
       const text = await file.text();
       const data = JSON.parse(text);
       
-      // Validate data structure
       if (!data.students || !data.config) {
-        throw new Error('Invalid backup file');
+        return { success: false, message: 'Invalid backup file structure' };
       }
 
-      // Restore data
       localStorage.setItem('talent-scout-data', data.students);
       localStorage.setItem('talent-scout-config', data.config);
       if (data.schools) {
@@ -37,8 +35,9 @@ export const backupService = {
       }
 
       return { success: true, message: 'Data restored successfully' };
-    } catch (error) {
-      return { success: false, message: 'Failed to restore backup' };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      return { success: false, message: `Failed to restore backup: ${errorMessage}` };
     }
   }
 }; 

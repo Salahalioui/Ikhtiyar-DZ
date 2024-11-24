@@ -51,20 +51,26 @@ export const defaultSchools = [
 ].sort();
 
 export const getSchools = () => {
-  // Get any custom schools from storage
-  const customSchools = localStorage.getItem('custom-schools');
-  const additionalSchools = customSchools ? JSON.parse(customSchools) : [];
-  
-  // Combine and sort all schools
-  return [...defaultSchools, ...additionalSchools].sort();
+  try {
+    const customSchools = localStorage.getItem('custom-schools');
+    const additionalSchools = customSchools ? JSON.parse(customSchools) : [];
+    return [...defaultSchools, ...additionalSchools].sort();
+  } catch (error) {
+    console.error('Error loading custom schools:', error);
+    return [...defaultSchools].sort();
+  }
 };
 
 export const addCustomSchool = (schoolName: string) => {
-  const customSchools = localStorage.getItem('custom-schools');
-  const schools = customSchools ? JSON.parse(customSchools) : [];
-  
-  if (!schools.includes(schoolName) && !defaultSchools.includes(schoolName)) {
-    schools.push(schoolName);
-    localStorage.setItem('custom-schools', JSON.stringify(schools));
+  try {
+    const customSchools = localStorage.getItem('custom-schools');
+    const schools = customSchools ? JSON.parse(customSchools) : [];
+    
+    if (!schools.includes(schoolName) && !defaultSchools.includes(schoolName)) {
+      schools.push(schoolName);
+      localStorage.setItem('custom-schools', JSON.stringify(schools));
+    }
+  } catch (error) {
+    console.error('Error adding custom school:', error);
   }
 }; 

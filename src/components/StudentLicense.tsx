@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Student } from '../types';
-import { User, Upload, X } from 'lucide-react';
+import { User, X } from 'lucide-react';
 import { ageGroups } from '../lib/ageGroups';
 import { QRCodeSVG } from 'qrcode.react';
 import JsBarcode from 'jsbarcode';
@@ -13,7 +13,7 @@ interface StudentLicenseProps {
 export function StudentLicense({ student }: StudentLicenseProps) {
   const [photo, setPhoto] = useState<string | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
-  const signaturePadRef = useRef<any>(null);
+  const signaturePadRef = useRef<SignaturePad>(null);
   const barcodeRef = useRef<SVGSVGElement>(null);
   const age = new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear();
   const ageGroup = ageGroups.calculateAgeGroup(student.dateOfBirth);
@@ -82,6 +82,7 @@ export function StudentLicense({ student }: StudentLicenseProps) {
                 <button
                   onClick={() => setPhoto(null)}
                   className="absolute -top-1 -right-1 p-0.5 bg-red-100 text-red-600 rounded-full hover:bg-red-200 print:hidden"
+                  aria-label="Remove photo"
                 >
                   <X className="w-3 h-3" />
                 </button>

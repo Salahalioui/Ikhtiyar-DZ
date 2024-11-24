@@ -43,6 +43,7 @@ export function PrintLicenses({ students, onClose }: PrintLicensesProps) {
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
+              aria-label="Close print dialog"
             >
               <X className="h-6 w-6" />
             </button>
@@ -51,8 +52,8 @@ export function PrintLicenses({ students, onClose }: PrintLicensesProps) {
 
         {/* Single Layout for both Preview and Print */}
         <div id="licenses-container" className="licenses-grid">
-          {students.map(student => (
-            <div key={student.id} className="license-wrapper">
+          {students.map((student, index) => (
+            <div key={`page-${index}`} className="print-page">
               <StudentLicense student={student} />
             </div>
           ))}

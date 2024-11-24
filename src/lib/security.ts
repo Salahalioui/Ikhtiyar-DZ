@@ -1,12 +1,13 @@
 export const security = {
-  encryptData: (data: any) => {
-    // Implement data encryption
+  encryptData: (data: Record<string, unknown>) => {
+    // Implement encryption
+    console.log('Encrypting data:', data);
   },
   backupData: () => {
-    // Automated backup functionality
+    // Implement backup
   },
   accessControl: {
-    roles: ['admin', 'coach', 'viewer'],
+    roles: ['admin', 'coach', 'viewer'] as const,
     permissions: {/* ... */}
   }
 }; 

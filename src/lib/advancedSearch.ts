@@ -1,3 +1,5 @@
+import { Student } from '../types';
+
 export const advancedSearch = {
   byPerformance: (students: Student[], criteria: {
     sport: 'football' | 'athletics',
@@ -8,18 +10,22 @@ export const advancedSearch = {
       const evaluation = student.evaluations[criteria.sport];
       if (!evaluation) return false;
       
-      const avgScore = Object.values(evaluation.scores)
-        .reduce((a, b) => a + b, 0) / Object.values(evaluation.scores).length;
+      const scores = Object.values(evaluation.scores);
+      const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
       
       return avgScore >= criteria.minScore && avgScore <= criteria.maxScore;
     });
   },
 
   byAgeGroup: (students: Student[], ageGroup: string) => {
-    // Filter by age group
+    return students.filter(student => {
+      const age = new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear();
+      const group = `U${Math.floor(age / 2) * 2}`;
+      return group === ageGroup;
+    });
   },
 
   bySchoolPerformance: (students: Student[], schoolName: string) => {
-    // Get school performance metrics
+    return students.filter(s => s.schoolName === schoolName);
   }
 }; 

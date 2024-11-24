@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Student } from '../types';
-import { Upload, Download, AlertCircle } from 'lucide-react';
+import { Upload, Download } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import Papa from 'papaparse';
 import { defaultSchools, addCustomSchool } from '../lib/schoolsList';
@@ -8,6 +8,14 @@ import { defaultSchools, addCustomSchool } from '../lib/schoolsList';
 interface ImportStudentsProps {
   onImport: (students: Student[]) => void;
   onClose: () => void;
+}
+
+interface CSVRowData {
+  Name?: string;
+  'Date of Birth'?: string;
+  'School Name'?: string;
+  Sport?: string;
+  [key: string]: string | undefined;
 }
 
 export function ImportStudents({ onImport, onClose }: ImportStudentsProps) {
@@ -42,7 +50,7 @@ export function ImportStudents({ onImport, onClose }: ImportStudentsProps) {
   };
 
   const processFile = (file: File) => {
-    Papa.parse(file, {
+    Papa.parse<CSVRowData>(file, {
       header: true,
       skipEmptyLines: true,
       encoding: 'UTF-8',
@@ -130,7 +138,11 @@ export function ImportStudents({ onImport, onClose }: ImportStudentsProps) {
               <h2 className="text-xl font-semibold text-gray-900">استيراد الطلاب / Import Students</h2>
               <p className="text-sm text-gray-500">قم بتحميل القالب أو اسحب ملف CSV / Download template or drag & drop CSV file</p>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">×</button>
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-gray-600"
+              aria-label="Close import dialog"
+            >×</button>
           </div>
 
           <div className="space-y-4">

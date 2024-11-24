@@ -43,27 +43,8 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
                             student.schoolName.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesStatus && matchesSearch;
       })
-      .sort((a, b) => {
-        let comparison = 0;
-        if (sortField === 'name') {
-          comparison = a.name.localeCompare(b.name);
-        } else if (sortField === 'school') {
-          comparison = a.schoolName.localeCompare(b.schoolName);
-        } else if (sortField === 'status') {
-          comparison = (a.status || '').localeCompare(b.status || '');
-        }
-        return sortOrder === 'asc' ? comparison : -comparison;
-      });
-  }, [students, statusFilter, sortField, sortOrder, searchQuery]);
-
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
-  };
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [students, statusFilter, searchQuery]);
 
   const handleSelectStudent = (studentId: string) => {
     const newSelected = new Set(selectedStudents);
@@ -127,14 +108,12 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
 
   const handleImportStudents = (newStudents: Student[]) => {
     try {
-      // Add all new students
       newStudents.forEach(student => {
         storage.addStudent(student);
       });
       showNotification(`Successfully imported ${newStudents.length} students`, 'success');
-      // Refresh the list
       window.location.reload();
-    } catch (error) {
+    } catch {
       showNotification('Error importing students', 'error');
     }
   };

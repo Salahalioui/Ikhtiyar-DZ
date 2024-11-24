@@ -1,3 +1,5 @@
+import { Student } from '../types';
+
 export const statistics = {
   getSchoolStats: (students: Student[]) => {
     const stats: Record<string, {
@@ -30,10 +32,21 @@ export const statistics = {
   },
 
   getAgeGroupStats: (students: Student[]) => {
-    // Calculate age group distribution
+    const stats: Record<string, number> = {};
+    students.forEach(student => {
+      const age = new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear();
+      const group = `U${Math.floor(age / 2) * 2}`;
+      stats[group] = (stats[group] || 0) + 1;
+    });
+    return stats;
   },
 
   getSelectionStats: (students: Student[]) => {
-    // Calculate selection statistics
+    return {
+      total: students.length,
+      selected: students.filter(s => s.status === 'selected').length,
+      eliminated: students.filter(s => s.status === 'eliminated').length,
+      pending: students.filter(s => s.status === 'pending').length
+    };
   }
 }; 
