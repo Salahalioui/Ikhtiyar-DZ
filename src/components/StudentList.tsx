@@ -1,12 +1,11 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
-import { Student } from '../types';
+import { useState, useMemo } from 'react';
+import { Student, SportEvaluation } from '../types';
 import { UserPlus, Trash2, Edit, ChevronRight, Users, Check, X, Search, Filter, UserCheck, UserX } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import { ConfirmDialog } from './ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { batchOperations } from '../lib/batchOperations';
-import { paginateData, PaginationOptions } from '../lib/pagination';
-import { useLazyLoad } from '../hooks/useLazyLoad';
+import { BatchEvaluation } from './BatchEvaluation';
 
 interface StudentListProps {
   students: Student[];
@@ -29,42 +28,7 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
   const [showFilters, setShowFilters] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
-  const [paginationOptions, setPaginationOptions] = useState<PaginationOptions>({
-    page: 1,
-    pageSize: 20,
-    sortField: 'name',
-    sortOrder: 'asc'
-  });
-
-  const {
-    displayedItems: paginatedStudents,
-    hasMore,
-    isLoading,
-    loadMore
-  } = useLazyLoad({
-    items: filteredAndSortedStudents,
-    initialBatchSize: paginationOptions.pageSize
-  });
-
-  // Add intersection observer for infinite scroll
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasMore, loadMore]);
+  const [showBatchEvaluation, setShowBatchEvaluation] = useState(false);
 
   const filteredAndSortedStudents = useMemo(() => {
     return students
@@ -149,6 +113,13 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
     }
   };
 
+  const handleBatchEvaluationSave = (evaluations: { studentId: string; evaluation: SportEvaluation }[]) => {
+    batchOperations.updateEvaluations(evaluations);
+    showNotification(`Updated evaluations for ${evaluations.length} students`, 'success');
+    // Refresh the student list
+    window.location.reload();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -159,15 +130,26 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
             {filteredAndSortedStudents.length} student{filteredAndSortedStudents.length !== 1 ? 's' : ''} found
           </p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onAdd}
-          className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-        >
-          <UserPlus size={20} />
-          Add Student
-        </motion.button>
+        <div className="flex gap-4">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowBatchEvaluation(true)}
+            className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md"
+          >
+            <Users size={20} />
+            Batch Evaluate
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onAdd}
+            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+          >
+            <UserPlus size={20} />
+            Add Student
+          </motion.button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -309,7 +291,7 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
         </div>
 
         <AnimatePresence mode="popLayout">
-          {paginatedStudents.map((student) => (
+          {filteredAndSortedStudents.map((student) => (
             <motion.div
               key={student.id}
               layout
@@ -409,11 +391,6 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
             </div>
           </motion.div>
         )}
-
-        {/* Loading indicator and observer target */}
-        <div ref={observerTarget} className="h-10 flex items-center justify-center">
-          {isLoading && <LoadingSpinner size="small" />}
-        </div>
       </div>
       
       <ConfirmDialog
@@ -430,6 +407,14 @@ export function StudentList({ students, onEdit, onDelete, onAdd, onSelect }: Stu
         onCancel={() => setStudentToDelete(null)}
         type="danger"
       />
+
+      {showBatchEvaluation && (
+        <BatchEvaluation
+          students={students}
+          onSave={handleBatchEvaluationSave}
+          onClose={() => setShowBatchEvaluation(false)}
+        />
+      )}
     </div>
   );
 }

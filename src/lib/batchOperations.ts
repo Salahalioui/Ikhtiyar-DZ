@@ -1,4 +1,4 @@
-import { Student } from '../types';
+import { Student, SportEvaluation } from '../types';
 import { storage } from './storage';
 
 export const batchOperations = {
@@ -34,5 +34,26 @@ export const batchOperations = {
       return false;
     }
     return true;
+  },
+
+  updateEvaluations: (evaluations: { studentId: string; evaluation: SportEvaluation }[]) => {
+    const students = storage.getStudents();
+    const updated = students.map(student => {
+      const studentEvaluation = evaluations.find(e => e.studentId === student.id);
+      if (studentEvaluation) {
+        return {
+          ...student,
+          evaluations: {
+            // Only keep the evaluation for the selected sport
+            [student.selectedSport]: {
+              ...studentEvaluation.evaluation,
+              date: new Date().toISOString()
+            }
+          }
+        };
+      }
+      return student;
+    });
+    storage.saveStudents(updated);
   }
 }; 
