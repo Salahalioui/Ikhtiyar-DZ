@@ -56,9 +56,16 @@ export function StudentLicense({ student }: StudentLicenseProps) {
 
   return (
     <div className="license-card border-2 border-blue-600 bg-white rounded-lg overflow-hidden">
-      {/* Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none rotate-[-30deg] print:opacity-10">
-        <h1 className="text-3xl font-bold text-gray-800">Ikhtiyar DZ</h1>
+      {/* Official Headers */}
+      <div className="text-center text-[8px] pt-1 border-b border-gray-200">
+        <div className="font-semibold">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+        <div className="text-[7px] text-gray-600">
+          وزارة التربية الوطنية
+        </div>
+        <div className="flex justify-between px-2 text-[7px] pb-1">
+          <div>مديرية التربية لولاية البيض</div>
+          <div>الرابطة الولائية المدرسية</div>
+        </div>
       </div>
 
       <div className="flex h-full p-3">
@@ -180,6 +187,12 @@ export function StudentLicense({ student }: StudentLicenseProps) {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Footer with official stamps */}
+      <div className="text-center text-[7px] pb-1">
+        <div className="text-gray-600">رخصة رياضية مدرسية</div>
+        <div className="text-gray-500">Licence Sportive Scolaire</div>
       </div>
     </div>
   );

@@ -75,12 +75,21 @@ export function About() {
 
   return (
     <div className="space-y-8">
-      {/* Hero Section */}
+      {/* Official Headers */}
+      <div className="text-center space-y-2">
+        <h1 className="text-2xl font-bold text-gray-900">الجمهورية الجزائرية الديمقراطية الشعبية</h1>
+        <div className="text-lg text-gray-600">وزارة التربية الوطنية</div>
+        <div className="flex justify-center gap-8 text-lg">
+          <div>مديرية التربية لولاية البيض</div>
+          <div>الرابطة الولائية المدرسية</div>
+        </div>
+      </div>
+
+      {/* App Title */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Ikhtiyar DZ</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          A comprehensive talent scouting system designed to support the selection process 
-          for young talents in football and athletics.
+          نظام انتقاء المواهب الرياضية المدرسية
         </p>
       </div>
 
@@ -146,6 +155,15 @@ export function About() {
         >
           Contact Support
         </a>
+      </div>
+
+      {/* Official Support Section */}
+      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-4">بدعم من</h2>
+        <div className="space-y-2">
+          <p className="text-lg font-medium">مديرية التربية لولاية البيض</p>
+          <p className="text-lg font-medium">الرابطة الولائية المدرسية</p>
+        </div>
       </div>
     </div>
   );
